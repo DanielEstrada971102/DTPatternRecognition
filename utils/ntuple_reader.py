@@ -11,7 +11,7 @@ from copy import deepcopy
 import numpy as np
 import itertools
 
-from utils.functions import color_msg
+from utils.functions import color_msg, flatten
 from geometry.cmsdt import dt
 from particles.segment import segment
 from particles.gen_muon import gen_muon
@@ -108,15 +108,9 @@ class ntuple(object):
     color_msg( f"(iSeg, Phi, eta): {phiseg}", indentLevel = 2) # There might be a lot of segments so don't print everything
     color_msg( f"Trigger primitives", color = "green", indentLevel = 1)
     color_msg( f"Number of TPs: {len(self.tps)}", indentLevel = 2) # There might be a lot of segments so don't print everything
-    
-  def flatten(self,lst):
-      result = []
-      for i in lst:
-          if isinstance(i, list):
-              result.extend(self.flatten(i))
-          else:
-              result.append(i)
-      return result
+    color_msg( f"Showers", color = "green", indentLevel = 1)
+    color_msg( f"Number of showers: {len(self.showers)}", indentLevel = 2)
+
   
   def fill_histograms(self):
     """ Apply selections and fill histograms """
@@ -134,7 +128,7 @@ class ntuple(object):
         # each of them with a matching segment. And we want to account for everything)
         
         if isinstance(val, (list, tuple, np.ndarray)):
-          val = self.flatten(val)
+          val = flatten(val)
           for ival in val:
             h.Fill( ival )
         else:
@@ -146,9 +140,12 @@ class ntuple(object):
         num = histoinfo["histoNum"]
         den = histoinfo["histoDen"]
         numdef = histoinfo["numdef"]
-        
+
         val = func(self)
         numPasses = numdef(self)
+        # if "shower_eff_MB1" in histo:
+        #   print("DEN: ", val)
+        #   print("NUM: ", numPasses)
         for val, passes in zip(val, numPasses):
           den.Fill(val)
           if passes:
@@ -208,7 +205,8 @@ class ntuple(object):
     else:
       color_msg(f"Opening input files from {inpath}", "blue", 1)
       allFiles = os.listdir(inpath)
-      nFiles = min(len(allFiles), self.maxfiles)
+      nFiles = len(allFiles) if self.maxfiles==-1 else min(len(allFiles), self.maxfiles)
+
       for iF in range( nFiles ):
         if "root" not in allFiles[iF]: continue
         color_msg(f"File {allFiles[iF]} added", indentLevel=2)

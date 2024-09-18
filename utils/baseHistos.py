@@ -48,8 +48,50 @@ histos.update({
       # Basically, for a best matching segment, if there's a bestTP candidate, fill the numerator.
       "numdef"   : lambda reader: [len(seg.matches) > 0 for seg in fcns.get_best_matches( reader, station = 4 ) ] 
   },
+  # ---- shower efficiencies ---- (destrada (.)_(.)...)
+  "shower_eff_MB1":{
+      "type": "eff",
+      "histoDen" : r.TH1D(f"Shower_eff_MB1_total", r';Wheel; Events', 5, -2.5 , 2.5),
+      "histoNum" : r.TH1D(f"Shower_eff_MB1_shower_matched", r';Wheel; Events', 5, -2.5 , 2.5),
+      "func"     : lambda reader: [seg.wh for seg in fcns.get_showered_best_matches( reader, station = 1 )],
+      "numdef"   : lambda reader: [
+          ((seg.st, seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = 1))
+          for seg in fcns.get_showered_best_matches( reader, station = 1 )
+        ],
+  },
+  "shower_eff_MB2":{
+      "type": "eff",
+      "histoDen" : r.TH1D(f"Shower_eff_MB2_total", r';Wheel; Events', 5, -2.5 , 2.5),
+      "histoNum" : r.TH1D(f"Shower_eff_MB2_shower_matched", r';Wheel; Events', 5, -2.5 , 2.5),
+      "func"     : lambda reader: [seg.wh for seg in fcns.get_showered_best_matches( reader, station = 2 )],
+      "numdef"   : lambda reader: [
+          ((seg.st, seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = 2))
+          for seg in fcns.get_showered_best_matches( reader, station = 2 )
+        ],
+  },
+  "shower_eff_MB3":{
+      "type": "eff",
+      "histoDen" : r.TH1D(f"Shower_eff_MB3_total", r';Wheel; Events', 5, -2.5 , 2.5),
+      "histoNum" : r.TH1D(f"Shower_eff_MB3_shower_matched", r';Wheel; Events', 5, -2.5 , 2.5),
+      "func"     : lambda reader: [seg.wh for seg in fcns.get_showered_best_matches( reader, station = 3 )],
+      "numdef"   : lambda reader: [
+          ((seg.st, seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = 3))
+          for seg in fcns.get_showered_best_matches( reader, station = 3 )
+        ],
+  },
+  "shower_eff_MB4":{
+      "type": "eff",
+      "histoDen" : r.TH1D(f"Shower_eff_MB4_total", r';Wheel; Events', 5, -2.5 , 2.5),
+      "histoNum" : r.TH1D(f"Shower_eff_MB4_shower_matched", r';Wheel; Events', 5, -2.5 , 2.5),
+      "func"     : lambda reader: [seg.wh for seg in fcns.get_showered_best_matches( reader, station = 4 )],
+      "numdef"   : lambda reader: [
+          ((seg.st, seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = 4))
+          for seg in fcns.get_showered_best_matches( reader, station = 4 )
+        ],
+  },
 })
-  
+
+
 histos.update({
   "shower_eff_muon_pt" :  {  
       "type" : "eff",
@@ -125,11 +167,11 @@ histos.update({
   },
   
   # --- Leading muon properties
-  "nTrueShowers" : {
-    "type" : "distribution",
-    "histo" : r.TH1D("nTrueShowers", r'; nTrueShowers; Events', 2, 0 , 2),
-    "func" : lambda reader: [gm.did_shower() for gm in reader.genmuons],
-  },
+  # "nTrueShowers" : {
+  #   "type" : "distribution",
+  #   "histo" : r.TH1D("nTrueShowers", r'; nTrueShowers; Events', 2, 0 , 2),
+  #   "func" : lambda reader: [gm.did_shower() for gm in reader.genmuons],
+  # },
 })
 
 # --- Showering muon properties

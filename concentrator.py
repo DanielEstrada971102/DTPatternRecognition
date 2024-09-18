@@ -10,11 +10,11 @@ import filters
 from utils.baseHistos import histos
 
 def addConcentratorOptions(pr):
-  pr.add_option('--inpath', '-i', type="string", dest = "inpath", default = "./results/")
+  pr.add_option('--inpath', '-i', type="string", dest = "inpath", default = ".")
   
   # Additional
   pr.add_option("--outfolder", "-o", type="string", dest = "outfolder", default = "./results")
-  pr.add_option('--outfilename', type=str, dest = "outfilename", default = 'histos.root')
+  pr.add_option('--outfilename', type=str, dest = "outfilename", default = '_histos')
   pr.add_option('--maxfiles', type=int, dest = "maxfiles", default = -1)
   pr.add_option('--maxevents', type=int, dest = "maxevents", default = -1)
   

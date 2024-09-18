@@ -141,4 +141,6 @@ class gen_muon(object):
         color_msg( f"Phi: {self.phi:.2f}", indentLevel = indentLevel)
         color_msg( f"Matched segments indices: {[seg.index for seg in self.matches]}", indentLevel = indentLevel)
         color_msg( f"Matched segments location: {[(seg.st, seg.sc, seg.wh) for seg in self.matches]}", indentLevel = indentLevel)
-        color_msg( f"Stations traversed: {self.matched_segments_stations}", indentLevel = indentLevel)   
+        color_msg( f"Stations traversed: {self.matched_segments_stations}", indentLevel = indentLevel)
+        if self.showered: color_msg( f"Showered", color="red", indentLevel = indentLevel)
+        else: color_msg( f"Not showered", indentLevel = indentLevel)
