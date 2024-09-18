@@ -14,7 +14,8 @@ def color_msg(msg, color = "none", indentLevel = 0):
         "green" : "1;32m",
         "red" : "1;31m",
         "blue" : "1;34m",
-        "yellow" : "1;35m"
+        "yellow" : "1;33m",
+        "purple" : "1;35m",
     }
 
     indentStr = ""
@@ -23,8 +24,10 @@ def color_msg(msg, color = "none", indentLevel = 0):
     if indentLevel == 2: indentStr = "*"
     if indentLevel == 3: indentStr = "-->"
 
-    
-    print("\033[%s%s %s \033[0m"%(codes[color], "  "*indentLevel + indentStr, msg))
+    try:
+        print("\033[%s%s %s \033[0m"%(codes[color], "  "*indentLevel + indentStr, msg))
+    except:
+        print("\033[%s%s %s \033[0m"%(codes["none"], "  "*indentLevel + indentStr, msg))
     return
 
 def flatten(lst):
@@ -36,10 +39,14 @@ def flatten(lst):
             result.append(i)
     return result
 
-def get_best_matches( reader, station = 1 ):
+def get_best_matches( reader, station = 1, _4showereds=None):
     """ Return the bin for the best matching segments of each generator muon """
-    # Fill with dummy segments   
-    genmuons = reader.genmuons
+    # Fill with dummy segments
+    if _4showereds is not None:
+        genmuons = [genmuon for genmuon in reader.genmuons if (genmuon.showered == _4showereds)]
+    else:
+        genmuons = reader.genmuons
+
     bestMatches = [ None for igm in range(len(genmuons)) ]
 
     # This is what's done in Jaime's code: https://github.com/jaimeleonh/DTNtuples/blob/unifiedPerf/test/DTNtupleTPGSimAnalyzer_Efficiency.C#L181-L208
@@ -57,41 +64,9 @@ def get_best_matches( reader, station = 1 ):
     bestMatches = filter( lambda key: key is not None, bestMatches )
     return bestMatches
 
-# ----- util functions destrada (.)_(.)....
-# def get_shower_by_station(reader, station=1):
-#     showers = reader.showers
-#     return [shower for shower in showers if shower.st == station]
-
-# def get_seg_locs_for_showered_muons(reader, station=1):
-#     genmuons = reader.genmuons
-#     seg_locations = []
-#     for genmuon in genmuons:
-#         if not genmuon.showered:
-#             continue
-#         for seg_loc in genmuon.matched_segments_stations:
-#             if seg_loc[0] == station:
-#                 seg_locations.append(seg_loc)
-
-#     return seg_locations
-
-# def get_seg_locs_for_best_matches(reader, station):
-#     bestMaches = get_best_matches(reader, station)
-#     return [(seg.st, seg.sc, seg.wh) for seg in bestMaches]
-
-def get_showered_best_matches(reader, station):
-    genmuons_showered = [genmuon for genmuon in reader.genmuons if genmuon.showered]
-    bestMatches = [ None for igm in range(len(genmuons_showered)) ]
-
-    # copied from get_best_matches function
-
-    for igm, gm in enumerate(genmuons_showered):
-        for bestMatch in gm.matches:
-            if bestMatch.st == station:
-                bestMatches[ igm ] =  bestMatch
-            
-    # Remove those that are None which are simply dummy values
-    bestMatches = filter( lambda key: key is not None, bestMatches )
-    return bestMatches
+def get_shower_by_station(reader, station=1):
+    showers = reader.showers
+    return [shower for shower in showers if shower.st == station]
 
 def get_shower_locs(reader, station=1): 
     showers = reader.showers
@@ -99,8 +74,10 @@ def get_shower_locs(reader, station=1):
     
     for shower in showers:
         if shower.st == station:
-            shower_locations.append((shower.st, shower.sc, shower.wh))
+            shower_locations.append((shower.sc, shower.wh))
     return shower_locations
+
+
 # ----------------------------------------
 
 def deltaPhi(phi1, phi2):
