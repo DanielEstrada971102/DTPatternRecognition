@@ -148,6 +148,7 @@ def plot_graphs(graphs, name, nBins, firstBin, lastBin,
         effgr.SetMarkerSize( 1 )
         effgr.SetMarkerStyle( 20 )
         legend.AddEntry( effgr, legendName, "p")
+
         if color == [10, 18]: color += 1 # skip white colors
         effgr.Draw("pe1 same")
         color += 1
