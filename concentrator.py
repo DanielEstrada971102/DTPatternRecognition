@@ -38,7 +38,7 @@ if __name__ == "__main__":
     ("_AM_withShowers", [filters.baseline]),
     #("_AM_vetoShowers", [filters.baseline, filters.removeShower])
   ]
-  
+  #histos_to_prod = {key: histos[key] for key in histos.keys() if key.startswith("seg") or key.startswith("shower")}
   for parameters in run_over:
     color_msg(f"Shower performance analyzer: {parameters[0]} ", "green")
     ntuplizer = ntuple(
@@ -52,6 +52,6 @@ if __name__ == "__main__":
       postfix = parameters[0]
     )
     ntuplizer.run()
-    
+
     if dumpmode == "root":
       ntuplizer.save_histograms()

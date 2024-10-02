@@ -52,7 +52,7 @@ class ntuple(object):
     self.create_outfolder(outfolder)
     return
       
-  def run(self):
+  def run(self, make_histos=True):
     """ Main workflow """
     t = self.tree    
     maxevents = self.maxevents if self.maxevents > 0 and self.maxevents < t.GetEntries() else t.GetEntries()
@@ -84,7 +84,7 @@ class ntuple(object):
       
       # Apply global selection
       if not self.passes_event(): continue      
-      self.fill_histograms()
+      if make_histos: self.fill_histograms()
 
   def passes_event(self):
     """ The selector is used to apply global cuts on the events """

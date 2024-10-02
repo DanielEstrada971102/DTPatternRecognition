@@ -262,7 +262,7 @@ def make_shower_neff_perWheel( files, outfolder = "results/plots"):
 
 if __name__ == "__main__":
 
-    outfolder = "results/plots"
+    outfolder = "results/plots_12thres"
     # --- Plot for segment matching efficiency --- #
     make_segment_eff_perWheel( 
         [("results/histograms_AM_withShowers_histos.root", "AM")],
