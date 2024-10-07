@@ -57,57 +57,37 @@ if __name__ == "__main__":
             maxfiles = maxfiles,
             postfix = parameters[0]
         )
-        pool = Pool(cpu_count())
-        results = []
 
         t = ntuplizer.tree
         _maxevents = maxevents if maxevents > 0 and maxevents < t.GetEntries() else t.GetEntries()
 
         color_msg(f"Scanning events", "purple")
         for iev, root_ev in enumerate(ntuplizer.tree):
+            if iev%(_maxevents/10) == 0: 
+                color_msg("Event: %d"%iev, "yellow")
             if iev >= _maxevents: break # A programmer cries when seeing this :)
 
             ev = Event(root_ev, iev)
 
-            results.append(
-                pool.apply_async(
-                    ntuplizer.run,
-                    args=(ev,),
-                    callback=lambda r, iev=iev: (
-                        color_msg("Event: %d"%iev, "yellow") if iev%(_maxevents/10) == 0 else None
-                    ),
-                    error_callback=lambda e, iev=iev: color_msg(
-                        f"Error for event {iev}: {e}", # Just display the error for now
-                        color="red",
-                    ),
-                ),
-            )
-
-        color_msg("waiting results...", color="purple")
-        ntuplizer.events = [result for r in results if (result := r.get()) is not None]
+            if (r := ntuplizer.run(ev)) is not None:
+                ntuplizer.events.append(r)
 
         color_msg("Events scan done!", color="blue")
         color_msg(f"After filter,  there are {len(ntuplizer.events)} events", color="blue")
 
         if dumpmode == "pickle" or dumpmode == "both":
             color_msg(f"Dumping ntuple into a pickleable file...", color="blue")
-            with open(f"{outfolder}/ntuplizer_{parameters[0]}{outfilename}.pkl", "wb") as file:
+            with open(f"{outfolder}/ntuplizer{parameters[0]}{outfilename}.pkl", "wb") as file:
                 pickle.dump(ntuplizer, file)
 
         if dumpmode == "root" or dumpmode == "both":
             color_msg(f"Filling histograms...", color="purple")
             ntuplizer.histograms = histos
+
             for iev, ev in enumerate(ntuplizer.events):
-                pool.apply_async(
-                    ntuplizer.fill_histograms,
-                    args=(ev,),
-                    error_callback=lambda e, iev=iev: color_msg(
-                        f"Error for event {iev}: {e}", # Just display the error for now
-                        color="red",
-                    ),
-                )
-            pool.close()    
-            pool.join()
+                ntuplizer.fill_histograms(ev)
+
             color_msg(f"Saving histograms...", color="purple")
             ntuplizer.save_histograms()
-            color_msg(f"Done!", color="green")
+
+        color_msg(f"Done!", color="green")

@@ -22,7 +22,7 @@ class Ntuple(object):
               maxevents = -1, 
               maxfiles = -1, 
               postfix = ""):
-    self.events = None
+    self.events = []
     # Save in attributes
     self.inputFolder = inputFolder
     self.selectors = selectors
