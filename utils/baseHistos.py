@@ -10,8 +10,8 @@ histos = {}
 histos.update({
     "seg_eff_MB1" :  {  
       "type" : "eff",
-      "histoDen" : r.TH1D(f"Eff_MB1_total", r';Wheel; Events', 5, -2.5 , 2.5),
-      "histoNum" : r.TH1D(f"Eff_MB1_AM_matched", r';Wheel; Events', 5, -2.5 , 2.5),
+      "histoDen" : r.TH1D(f"Eff_MB1_AM_total", r';Wheel; Events', 5, -2.5 , 2.5),
+      "histoNum" : r.TH1D(f"Eff_MB1_AM_num", r';Wheel; Events', 5, -2.5 , 2.5),
       "func"     : lambda reader: [seg.wh for seg in fcns.get_best_matches( reader, station = 1 )], # These are the values to fill with
       # These are the conditions on whether to fill numerator also. Imitating Jaime's code:
       # https://github.com/jaimeleonh/DTNtuples/blob/unifiedPerf/test/DTNtupleTPGSimAnalyzer_Efficiency.C#L443
@@ -20,8 +20,8 @@ histos.update({
   },
   "seg_eff_MB2" :  {  
       "type" : "eff",
-      "histoDen" : r.TH1D(f"Eff_MB2_total", r';Wheel; Events', 5, -2.5 , 2.5),
-      "histoNum" : r.TH1D(f"Eff_MB2_AM_matched", r';Wheel; Events', 5, -2.5 , 2.5),
+      "histoDen" : r.TH1D(f"Eff_MB2_AM_total", r';Wheel; Events', 5, -2.5 , 2.5),
+      "histoNum" : r.TH1D(f"Eff_MB2_AM_num", r';Wheel; Events', 5, -2.5 , 2.5),
       "func"     : lambda reader: [seg.wh for seg in fcns.get_best_matches( reader, station = 2 )], # These are the values to fill with
       # These are the conditions on whether to fill numerator also. Imitating Jaime's code:
       # https://github.com/jaimeleonh/DTNtuples/blob/unifiedPerf/test/DTNtupleTPGSimAnalyzer_Efficiency.C#L443
@@ -30,8 +30,8 @@ histos.update({
   },
   "seg_eff_MB3" :  {  
       "type" : "eff",
-      "histoDen" : r.TH1D(f"Eff_MB3_total", r';Wheel; Events', 5, -2.5 , 2.5),
-      "histoNum" : r.TH1D(f"Eff_MB3_AM_matched", r';Wheel; Events', 5, -2.5 , 2.5),
+      "histoDen" : r.TH1D(f"Eff_MB3_AM_total", r';Wheel; Events', 5, -2.5 , 2.5),
+      "histoNum" : r.TH1D(f"Eff_MB3_AM_num", r';Wheel; Events', 5, -2.5 , 2.5),
       "func"     : lambda reader: [seg.wh for seg in fcns.get_best_matches( reader, station = 3 )], # These are the values to fill with
       # These are the conditions on whether to fill numerator also. Imitating Jaime's code:
       # https://github.com/jaimeleonh/DTNtuples/blob/unifiedPerf/test/DTNtupleTPGSimAnalyzer_Efficiency.C#L443
@@ -40,8 +40,8 @@ histos.update({
   },
   "seg_eff_MB4" :  {  
       "type" : "eff",
-      "histoDen" : r.TH1D(f"Eff_MB4_total", r';Wheel; Events', 5, -2.5 , 2.5),
-      "histoNum" : r.TH1D(f"Eff_MB4_AM_matched", r';Wheel; Events', 5, -2.5 , 2.5),
+      "histoDen" : r.TH1D(f"Eff_MB4_AM_total", r';Wheel; Events', 5, -2.5 , 2.5),
+      "histoNum" : r.TH1D(f"Eff_MB4_AM_num", r';Wheel; Events', 5, -2.5 , 2.5),
       "func"     : lambda reader: [seg.wh for seg in fcns.get_best_matches( reader, station = 4 )], # These are the values to fill with
       # These are the conditions on whether to fill numerator also. Imitating Jaime's code:
       # https://github.com/jaimeleonh/DTNtuples/blob/unifiedPerf/test/DTNtupleTPGSimAnalyzer_Efficiency.C#L443
@@ -54,14 +54,14 @@ histos.update({
   "shower_eff_muon_pt" :  {  
       "type" : "eff",
       "histoDen" : r.TH1D("Shower_eff_muon_pt_total", r';Wheel; Events', 20, 0 , 1000),
-      "histoNum" : r.TH1D("Shower_eff_muon_pt_matched", r';Wheel; Events', 20, 0 , 1000),
+      "histoNum" : r.TH1D("Shower_eff_muon_pt_num", r';Wheel; Events', 20, 0 , 1000),
       "func"     : lambda reader: [gm.pt for gm in reader.genmuons if gm.did_shower()], 
       "numdef"   : lambda reader: [ len(reader.showers) > 0 ] 
   },
   "shower_eff_muon_eta" :  {  
       "type" : "eff",
       "histoDen" : r.TH1D("Shower_eff_muon_eta_total", r';Wheel; Events', 20, -1 , 1),
-      "histoNum" : r.TH1D("Shower_eff_muon_eta_matched", r';Wheel; Events', 20, -1 , 1),
+      "histoNum" : r.TH1D("Shower_eff_muon_eta_num", r';Wheel; Events', 20, -1 , 1),
       "func"     : lambda reader: [gm.eta for gm in reader.genmuons if gm.did_shower()], 
       "numdef"   : lambda reader: [ len(reader.showers) > 0 ] 
   }
