@@ -26,7 +26,7 @@ def make_eff_plot_perWheel(
     nBins = 20
     binFirst = 0
     binLast = 20
-    maxY = 1.05  
+    maxY = 1.05 
 
     total_num = r.TH1D( f"{plot_name}_num", "", 20, 0, 20)
     total_den = r.TH1D( f"{plot_name}_den", "", 20, 0, 20)
@@ -118,7 +118,7 @@ if __name__ == "__main__":
 
     color_msg("Making plots...", color="purple")
     for file in Files:
-        outfolder = "results/plots_"+ file.split("_")[-1][:-4]
+        outfolder = "results/plots_"+ file.split("_")[-1][:-5]
         # --- Plot for segment matching efficiency --- #
         _=make_eff_plot_perWheel( 
             file=file,

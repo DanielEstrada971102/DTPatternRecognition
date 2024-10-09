@@ -15,14 +15,24 @@ class Event():
   __slot__=['iev', 'digis', 'segments', 'tps', 'showers', 'genmuons']
   def __init__(self, root_ev, iev=-1):
     self.iev = iev
-    self.digis = []
-    self.segments = []
-    self.tps = []
-    self.showers = []
-    self.genmuons = []
-
-    self.build_topology(root_ev)
-
+    # --------- Digis --------- #
+    self.digis = [ digi(root_ev, idigi) for idigi in range(root_ev.digi_nDigis) ]
+    # --------- Offline segments --------- #
+    self.segments = [ segment( root_ev, iseg) for iseg in range(root_ev.seg_nSegments) if root_ev.seg_phi_t0[iseg] > -500 ] # keep only good segments
+    # --------- Ph2 TPs --------- #
+    self.tps = [ ph2tpg(root_ev, itp) for itp in range(root_ev.ph2TpgPhiEmuAm_nTrigs) ]
+    # --------- Showers --------- #
+    self.showers = [ shower(root_ev, ishower) for ishower in range(len(root_ev.ph2Shower_station)) ]
+    # --------- Generator level muons --------- #
+    self.genmuons = sorted(
+      [
+        gen_muon(m, root_ev.gen_pt[m], root_ev.gen_eta[m], root_ev.gen_phi[m], root_ev.gen_charge[m]) 
+        for m in range(root_ev.gen_nGenParts) if abs(root_ev.gen_pdgId[m]) == 13
+      ],
+      key=lambda m: m.pt,
+      reverse=True,
+    )
+    
 
   def analyze_matches(self):
     for gm in self.genmuons:
@@ -35,44 +45,6 @@ class Event():
       for seg in matched_segments:
         for tp in self.tps:
           seg.match_offline_to_AM( tp, max_dPhi = 0.1 )
-
-
-  def build_topology(self, ev):
-    """
-    ---------------------------------------------------------
-            Event reconstruction method
-    ---------------------------------------------------------
-    This method reconstructs the information of the different
-    DT related objects: digis, offline segments and TPs.
-    ---------------------------------------------------------
-    """
-
-    # --------- Digis --------- #
-    for idigi in range(ev.digi_nDigis):
-      self.digis.append( digi(ev, idigi) )
-
-    # --------- Offline segments --------- #
-    for iseg in range(ev.seg_nSegments):
-      if ev.seg_phi_t0[iseg] > -500: self.segments.append( segment(ev, iseg) ) # keep only good segments
-
-    # --------- Ph2 TPs --------- #
-    for itp in range(ev.ph2TpgPhiEmuAm_nTrigs):
-      self.tps.append( ph2tpg(ev, itp) )
-    
-    # --------- Showers --------- #
-    nShowerObj = len(ev.ph2Shower_station)
-    for iShower in range(nShowerObj):
-      self.showers.append( shower(ev, iShower) )
-
-    # --------- Generator level muons --------- #
-    for m in range(ev.gen_nGenParts):
-      if abs(ev.gen_pdgId[m]) == 13:
-        self.genmuons.append(
-            gen_muon(m, ev.gen_pt[m], ev.gen_eta[m], ev.gen_phi[m], ev.gen_charge[m])
-          )
-    # Sort generator muons by pT
-    if self.genmuons is not None: self.genmuons.sort( key = lambda m : m.pt, reverse = True) 
-
 
   def summarize(self):
     """ Method to show a small description of what has been recorded in this event """

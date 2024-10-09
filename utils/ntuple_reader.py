@@ -7,7 +7,8 @@ import ROOT as r
 import os
 import json
 import math
-import numpy as np
+from numpy import ndarray
+from inspect import isgenerator
 
 from utils.event_builder import Event
 from utils.functions import color_msg, flatten
@@ -22,7 +23,6 @@ class Ntuple(object):
               maxevents = -1, 
               maxfiles = -1, 
               postfix = ""):
-    self.events = []
     # Save in attributes
     self.inputFolder = inputFolder
     self.selectors = selectors
@@ -32,11 +32,13 @@ class Ntuple(object):
     self.maxfiles = maxfiles
     self.postfix = postfix
 
+    # Prepare output
+    self.create_outfolder(outfolder)
+
     # Prepare input
     self.load_tree(inputFolder)
 
-    # Prepare output
-    self.create_outfolder(outfolder)
+    self.events = ( ev for iev, root_ev in enumerate(self.tree) if (ev := self.run(Event(root_ev, iev))) )
 
 
   def run(self, ev: Event):
@@ -66,7 +68,7 @@ class Ntuple(object):
         # and we want to fill for everything (e.g. there are multiple muons,
         # each of them with a matching segment. And we want to account for everything)
         
-        if isinstance(val, (list, tuple, np.ndarray)):
+        if isinstance(val, (list, tuple, ndarray)) or isgenerator(val):
           val = flatten(val)
           for ival in val:
             h.Fill( ival )
@@ -82,9 +84,7 @@ class Ntuple(object):
 
         val = func(ev)
         numPasses = numdef(ev)
-        # if "shower_eff_MB1" in histo:
-        #   print("DEN: ", val)
-        #   print("NUM: ", numPasses)
+
         for val, passes in zip(val, numPasses):
           den.Fill(val)
           if passes:

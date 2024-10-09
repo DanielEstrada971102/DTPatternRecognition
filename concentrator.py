@@ -11,7 +11,6 @@ from utils.functions import color_msg
 import filters
 from utils.baseHistos import histos
 from multiprocessing import cpu_count, Pool
-import pickle
 
 def addConcentratorOptions(pr):
     pr.add_option('--inpath', '-i', type="string", dest = "inpath", default = ".")
@@ -51,7 +50,7 @@ if __name__ == "__main__":
         ntuplizer = Ntuple(
             inputFolder = inpath, 
             selectors = parameters[1],
-            histograms = None,
+            histograms = histos,
             outfolder = outfolder, 
             outfilename = outfilename,
             maxfiles = maxfiles,
@@ -61,30 +60,14 @@ if __name__ == "__main__":
         t = ntuplizer.tree
         _maxevents = maxevents if maxevents > 0 and maxevents < t.GetEntries() else t.GetEntries()
 
-        color_msg(f"Scanning events", "purple")
-        for iev, root_ev in enumerate(ntuplizer.tree):
-            if iev%(_maxevents/10) == 0: 
-                color_msg("Event: %d"%iev, "yellow")
-            if iev >= _maxevents: break # A programmer cries when seeing this :)
-
-            ev = Event(root_ev, iev)
-
-            if (r := ntuplizer.run(ev)) is not None:
-                ntuplizer.events.append(r)
-
-        color_msg("Events scan done!", color="blue")
-        color_msg(f"After filter,  there are {len(ntuplizer.events)} events", color="blue")
-
-        if dumpmode == "pickle" or dumpmode == "both":
-            color_msg(f"Dumping ntuple into a pickleable file...", color="blue")
-            with open(f"{outfolder}/ntuplizer{parameters[0]}{outfilename}.pkl", "wb") as file:
-                pickle.dump(ntuplizer, file)
-
-        if dumpmode == "root" or dumpmode == "both":
+        if dumpmode == "root":
             color_msg(f"Filling histograms...", color="purple")
-            ntuplizer.histograms = histos
 
-            for iev, ev in enumerate(ntuplizer.events):
+            for ev in ntuplizer.events:
+                if ev.iev%(_maxevents/10) == 0: 
+                    color_msg("Event: %d"%ev.iev, "yellow")
+                if ev.iev >= _maxevents: break # A programmer cries when seeing this :)
+
                 ntuplizer.fill_histograms(ev)
 
             color_msg(f"Saving histograms...", color="purple")

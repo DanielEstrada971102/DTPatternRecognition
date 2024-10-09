@@ -50,6 +50,8 @@ histos.update({
   },
 })
 
+# ------------------------------ strange definitions (?) -----------------------------------------
+
 histos.update({
   "shower_eff_muon_pt" :  {  
       "type" : "eff",
@@ -66,7 +68,7 @@ histos.update({
       "numdef"   : lambda reader: [ len(reader.showers) > 0 ] 
   }
 })
-
+# -----------------------------------------------------------------------------------------------
 histos.update({
   # --- Leading muon properties
   "LeadingMuon_pt" : {
@@ -177,15 +179,6 @@ histos.update({
 })
 
   # ---- shower ---- (destrada (.)_(.)...)
-
-histos.update({
-  "nEvents":{
-    "type": "distribution",
-    "histo": r.TH1D("nEvents", r'; nDetectedShowers; Events', 1, 0.5 , 1.5),
-    "func" : lambda reader: 1,
-  }
-})
-
 histos.update({
   "nDetectedShowers":{
     "type": "distribution",
@@ -225,48 +218,7 @@ histos.update({
 })
 
 
-histos.update({ # fake positive ratio --> fake showers / all showers (relative to showers)
-  "shower_fprs_MB1":{
-    "type": "eff",
-    "histoDen" : r.TH1D(f"Shower_fprs_MB1_total", r';Wheel; Events', 5, -2.5 , 2.5),
-    "histoNum" : r.TH1D(f"Shower_fprs_MB1_num", r';Wheel; Events', 5, -2.5 , 2.5),
-    "func"     : lambda reader: [shower.wh for shower in fcns.get_shower_by_station(reader, station=1)],
-    "numdef"   : lambda reader: [
-      (shower.sc, shower.wh) in [(seg.sc, seg.wh) for seg in fcns.get_best_matches(reader, station = 1, _4showereds=False)] 
-      for shower in fcns.get_shower_by_station(reader, station=1)
-    ],
-  },
-  "shower_fprs_MB2":{
-    "type": "eff",
-    "histoDen" : r.TH1D(f"Shower_fprs_MB2_total", r';Wheel; Events', 5, -2.5 , 2.5),
-    "histoNum" : r.TH1D(f"Shower_fprs_MB2_num", r';Wheel; Events', 5, -2.5 , 2.5),
-    "func"     : lambda reader: [shower.wh for shower in fcns.get_shower_by_station(reader, station=2)],
-    "numdef"   : lambda reader: [
-      (shower.sc, shower.wh) in [(seg.sc, seg.wh) for seg in fcns.get_best_matches(reader, station = 2, _4showereds=False)] 
-      for shower in fcns.get_shower_by_station(reader, station=2)
-    ],
-  },
-  "shower_fprs_MB3":{
-    "type": "eff",
-    "histoDen" : r.TH1D(f"Shower_fprs_MB3_total", r';Wheel; Events', 5, -2.5 , 2.5),
-    "histoNum" : r.TH1D(f"Shower_fprs_MB3_num", r';Wheel; Events', 5, -2.5 , 2.5),
-    "func"     : lambda reader: [shower.wh for shower in fcns.get_shower_by_station(reader, station=3)],
-    "numdef"   : lambda reader: [
-      (shower.sc, shower.wh) in [(seg.sc, seg.wh) for seg in fcns.get_best_matches(reader, station = 3, _4showereds=False)] 
-      for shower in fcns.get_shower_by_station(reader, station=3)
-    ],
-  },
-  "shower_fprs_MB4":{
-    "type": "eff",
-    "histoDen" : r.TH1D(f"Shower_fprs_MB4_total", r';Wheel; Events', 5, -2.5 , 2.5),
-    "histoNum" : r.TH1D(f"Shower_fprs_MB4_num", r';Wheel; Events', 5, -2.5 , 2.5),
-    "func"     : lambda reader: [shower.wh for shower in fcns.get_shower_by_station(reader, station=4)],
-    "numdef"   : lambda reader: [
-      (shower.sc, shower.wh) in [(seg.sc, seg.wh) for seg in fcns.get_best_matches(reader, station = 4, _4showereds=False)] 
-      for shower in fcns.get_shower_by_station(reader, station=4)
-    ],
-  },
-
+histos.update({ 
   "seg_m_shower_tprgm_MB1":{ # true positive ratio --> segments which loc matches with any shower / segments (relative to showered genmuons)
       "type": "eff",
       "histoDen" : r.TH1D(f"Seg_m_shower_tprgm_MB1_total", r';Wheel; Events', 5, -2.5 , 2.5),
