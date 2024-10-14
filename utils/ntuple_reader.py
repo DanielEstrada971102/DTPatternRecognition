@@ -90,6 +90,13 @@ class Ntuple(object):
           if passes:
             num.Fill(val)  
 
+      elif hType == "distribution - candle":
+        h = histoinfo["histo"]
+        func = histoinfo["func"]
+        val = func(ev)
+        
+        for ival in val:
+          h.Fill( *ival )
 
   def load_tree(self, inpath):
     """ Simple function to retrieve a chain with all the trees to be analyzed """
@@ -125,9 +132,10 @@ class Ntuple(object):
     f = r.TFile.Open(outname, "RECREATE")
     for hname, histoinfo in self.histograms.items():
       hType = histoinfo["type"]
-      if hType == "distribution":
+      if "distribution" in hType:
         histo = histoinfo["histo"]
         histo.Write(histo.GetName())
+
       elif hType == "eff":
         histoNum = histoinfo["histoNum"]
         histoDen = histoinfo["histoDen"]

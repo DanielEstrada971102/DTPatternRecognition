@@ -9,6 +9,9 @@ from particles.gen_muon import gen_muon
 from particles.shower import shower
 from particles.ph2TriggerPrimitives import ph2tpg
 from particles.digis import digi
+from particles.shower2comp import shower2comp
+from particles.pyshower import pyshower
+import pandas as pd
 
 
 class Event():
@@ -32,7 +35,9 @@ class Event():
       key=lambda m: m.pt,
       reverse=True,
     )
-    
+    self.showers2comp = []
+    self.pyshowers = []
+    self.build_showers()
 
   def analyze_matches(self):
     for gm in self.genmuons:
@@ -63,3 +68,21 @@ class Event():
     color_msg( f"Number of TPs: {len(self.tps)}", indentLevel = 3) # There might be a lot of segments so don't print everything
     color_msg( f"Showers", color = "green", indentLevel = 2)
     color_msg( f"Number of showers: {len(self.showers)}", indentLevel = 3)
+
+
+  def build_showers(self, thr2comp=12, thr_sl=6):
+    emulator_shower_locs = [(show.wh, show.sc, show.st) for show in self.showers]
+    df = pd.DataFrame([digi.__dict__ for digi in self.digis])
+    # searching showers by station, They should be equal than emulator showers
+    for (wh, sc, st), df_g in df.groupby(["wh", "sc", "st"]):
+      if len(df_g) >= thr2comp:
+        shower = shower2comp(wh, sc, st, df_g)
+        if (wh, sc, st) in emulator_shower_locs: 
+          shower.eq2Emulator = True
+        self.showers2comp.append(shower)
+
+      if len(df_g.loc[df_g["sl"]==1]) >= thr_sl or len(df_g.loc[df_g["sl"]==3]) >= thr_sl:
+        shower = pyshower(wh, sc, st, df_g)
+        if (wh, sc, st) in emulator_shower_locs: 
+          shower.eq2Emulator = True
+

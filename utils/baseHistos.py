@@ -179,41 +179,117 @@ histos.update({
 })
 
   # ---- shower ---- (destrada (.)_(.)...)
-histos.update({
-  "nDetectedShowers":{
+histos.update({ # Showers built on cmssw emulator
+  "emuShowers_n":{
     "type": "distribution",
-    "histo" : r.TH1D("nDetectedShowers", r'; nDetectedShowers; Events', 50, 0 , 50),
+    "histo" : r.TH1D("emuShowers_n", r'; emuShowers_n; Events', 50, 0 , 50),
     "func" : lambda reader: len(reader.showers),
   },
-  "nDigis_showers":{
+  "emuShowers_nDigis":{
     "type": "distribution",
-    "histo" : r.TH1D("nDigis_showers", r'; nDigis_showers; Events', 50, 0 , 500),
+    "histo" : r.TH1D("emuShowers_nDigis", r'; emuShowers_nDigis; Events', 50, 0 , 500),
     "func" : lambda reader: [shower.nDigis for shower in reader.showers],
   },
-  "avg_pos_showers":{
+  "emuShowers_avg_pos":{
     "type": "distribution",
-    "histo" : r.TH1D("avg_pos_showers", r'; avg_pos_showers; Events', 50, 0 , 4000),
+    "histo" : r.TH1D("emuShowers_avg_pos", r'; emuShowers_avg_pos; Events', 50, 0 , 4000),
     "func" : lambda reader: [shower.avg_pos for shower in reader.showers],
   },
-  "avg_time_showers":{
+  "emuShowers_avg_time":{
     "type": "distribution",
-    "histo" : r.TH1D("avg_time_showers", r'; avg_time_showers; Events', 50, 0 , 4000),
+    "histo" : r.TH1D("emuShowers_avg_time", r'; emuShowers_avg_time; Events', 50, 0 , 4000),
     "func" : lambda reader: [shower.avg_time for shower in reader.showers],
   },
-  "wh_showers":{
+  "emuShowers_wh":{
     "type": "distribution",
-    "histo" : r.TH1D("wh_showers", r'; wh_showers; Events', 5, -2.5 , 2.5),
+    "histo" : r.TH1D("emuShowers_wh", r'; emuShowers_wh; Events', 5, -2.5 , 2.5),
     "func" : lambda reader: [shower.wh for shower in reader.showers],
   },
-  "st_showers":{
+  "emuShowers_st":{
     "type": "distribution",
-    "histo" : r.TH1D("st_showers", r'; st_showers; Events', 4, 0 , 4),
+    "histo" : r.TH1D("emuShowers_st", r'; emuShowers_st; Events', 4, 0 , 4),
     "func" : lambda reader: [shower.st for shower in reader.showers],
   },
-  "sec_showers":{
+  "emuShowers_sec":{
     "type": "distribution",
-    "histo" : r.TH1D("sec_showers", r'; sec_showers; Events', 12, 0 , 12),
+    "histo" : r.TH1D("emuShowers_sec", r'; emuShowers_sec; Events', 12, 0 , 12),
     "func" : lambda reader: [shower.sc for shower in reader.showers],
+  },
+})
+
+histos.update({ # Showers re-built in python to compare
+  "showers2comp_n":{
+    "type": "distribution",
+    "histo" : r.TH1D("showers2comp_n", r'; showers2comp_n; Events', 50, 0 , 50),
+    "func" : lambda reader: len(reader.showers2comp),
+  },
+  "showers2comp_nDigis":{
+    "type": "distribution",
+    "histo" : r.TH1D("showers2comp_nDigis", r'; showers2comp_nDigis; Events', 50, 0 , 500),
+    "func" : lambda reader: [shower.nDigis for shower in reader.showers2comp],
+  },
+  "showers2comp_avg_pos":{
+    "type": "distribution",
+    "histo" : r.TH1D("showers2comp_avg_pos", r'; showers2comp_avg_pos; Events', 50, 0 , 4000),
+    "func" : lambda reader: [shower.avg_pos for shower in reader.showers2comp],
+  },
+  "showers2comp_avg_time":{
+    "type": "distribution",
+    "histo" : r.TH1D("showers2comp_avg_time", r'; showers2comp_avg_time; Events', 50, 0 , 4000),
+    "func" : lambda reader: [shower.avg_time for shower in reader.showers2comp],
+  },
+  "showers2comp_wh":{
+    "type": "distribution",
+    "histo" : r.TH1D("showers2comp_wh", r'; showers2comp_wh; Events', 5, -2.5 , 2.5),
+    "func" : lambda reader: [shower.wh for shower in reader.showers2comp],
+  },
+  "showers2comp_st":{
+    "type": "distribution",
+    "histo" : r.TH1D("showers2comp_st", r'; showers2comp_st; Events', 4, 0 , 4),
+    "func" : lambda reader: [shower.st for shower in reader.showers2comp],
+  },
+  "showers2comp_sec":{
+    "type": "distribution",
+    "histo" : r.TH1D("showers2comp_sec", r'; showers2comp_sec; Events', 12, 0 , 12),
+    "func" : lambda reader: [shower.sc for shower in reader.showers2comp],
+  },
+})
+
+histos.update({ # Showers built in python by SL
+  "pyShower_n":{
+    "type": "distribution",
+    "histo" : r.TH1D("pyShower_n", r'; pyShower_n; Events', 50, 0 , 50),
+    "func" : lambda reader: len(reader.pyshowers),
+  },
+  "pyShower_nDigis":{
+    "type": "distribution",
+    "histo" : r.TH1D("pyShower_nDigis", r'; pyShower_nDigis; Events', 50, 0 , 500),
+    "func" : lambda reader: [shower.nDigis for shower in reader.pyshowers],
+  },
+  "pyShower_avg_pos":{
+    "type": "distribution",
+    "histo" : r.TH1D("pyShower_avg_pos", r'; pyShower_avg_pos; Events', 50, 0 , 4000),
+    "func" : lambda reader: [shower.avg_pos for shower in reader.pyshowers],
+  },
+  "pyShower_avg_time":{
+    "type": "distribution",
+    "histo" : r.TH1D("pyShower_avg_time", r'; pyShower_avg_time; Events', 50, 0 , 4000),
+    "func" : lambda reader: [shower.avg_time for shower in reader.pyshowers],
+  },
+  "pyShower_wh":{
+    "type": "distribution",
+    "histo" : r.TH1D("pyShower_wh", r'; pyShower_wh; Events', 5, -2.5 , 2.5),
+    "func" : lambda reader: [shower.wh for shower in reader.pyshowers],
+  },
+  "pyShower_st":{
+    "type": "distribution",
+    "histo" : r.TH1D("pyShower_st", r'; pyShower_st; Events', 4, 0 , 4),
+    "func" : lambda reader: [shower.st for shower in reader.pyshowers],
+  },
+  "pyShower_sec":{
+    "type": "distribution",
+    "histo" : r.TH1D("pyShower_sec", r'; pyShower_sec; Events', 12, 0 , 12),
+    "func" : lambda reader: [shower.sc for shower in reader.pyshowers],
   },
 })
 
@@ -299,5 +375,28 @@ histos.update({
           ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = 4))
           for seg in fcns.get_best_matches( reader, station = 4, _4showereds = False )
         ],
+  },
+})
+
+histos.update({
+  "digi_w_MB1":{
+    "type": "distribution - candle",
+    "histo" : r.TH2I(f"digi_w_MB1", r';Wheel; Events', 5, -2.5, 2.5, 100, 0, 100),
+    "func" : lambda reader: [(digi.wh, digi.w) for digi in reader.digis if digi.st == 1],
+  },
+  "digi_w_MB2":{
+    "type": "distribution - candle",
+    "histo" : r.TH2I(f"digi_w_MB2", r';Wheel; Events', 5, -2.5, 2.5, 100, 0, 100),
+    "func" : lambda reader: [(digi.wh, digi.w) for digi in reader.digis if digi.st == 2],
+  },
+  "digi_w_MB3":{
+    "type": "distribution - candle",
+    "histo" : r.TH2I(f"digi_w_MB3", r';Wheel; Events', 5, -2.5, 2.5, 100, 0, 100),
+    "func" : lambda reader: [(digi.wh, digi.w) for digi in reader.digis if digi.st == 3],
+  },
+  "digi_w_MB4":{
+    "type": "distribution - candle",
+    "histo" : r.TH2I(f"digi_w_MB4", r';Wheel; Events', 5, -2.5, 2.5, 100, 0, 100),
+    "func" : lambda reader: [(digi.wh, digi.w) for digi in reader.digis if digi.st == 4],
   },
 })
