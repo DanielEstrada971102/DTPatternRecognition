@@ -16,7 +16,7 @@ import pandas as pd
 
 class Event():
   __slot__=['iev', 'digis', 'segments', 'tps', 'showers', 'genmuons']
-  def __init__(self, root_ev, iev=-1):
+  def __init__(self, root_ev, iev=-1, thr=12):
     self.iev = iev
     # --------- Digis --------- #
     self.digis = [ digi(root_ev, idigi) for idigi in range(root_ev.digi_nDigis) ]
@@ -37,7 +37,7 @@ class Event():
     )
     self.showers2comp = []
     self.pyshowers = []
-    self.build_showers()
+    self.build_showers(thr2comp = thr, thr_sl = thr//2)
 
   def analyze_matches(self):
     for gm in self.genmuons:
@@ -82,7 +82,9 @@ class Event():
         self.showers2comp.append(shower)
 
       if len(df_g.loc[df_g["sl"]==1]) >= thr_sl or len(df_g.loc[df_g["sl"]==3]) >= thr_sl:
+        #color_msg("pyshower detected", color="red", indentLevel=2)
         shower = pyshower(wh, sc, st, df_g)
         if (wh, sc, st) in emulator_shower_locs: 
           shower.eq2Emulator = True
+        self.pyshowers.append(shower)
 

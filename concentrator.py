@@ -10,8 +10,6 @@ from utils.event_builder import Event
 from utils.functions import color_msg
 import filters
 from utils.baseHistos import histos
-from multiprocessing import cpu_count, Pool
-
 
 histo_names = [
     # 'seg_eff_MB1',

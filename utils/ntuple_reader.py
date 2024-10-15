@@ -9,7 +9,7 @@ import json
 import math
 from numpy import ndarray
 from inspect import isgenerator
-
+import re
 from utils.event_builder import Event
 from utils.functions import color_msg, flatten
 
@@ -37,8 +37,8 @@ class Ntuple(object):
 
     # Prepare input
     self.load_tree(inputFolder)
-
-    self.events = ( ev for iev, root_ev in enumerate(self.tree) if (ev := self.run(Event(root_ev, iev))) )
+    self.thr = int(re.findall(r'\d+', outfilename)[0])
+    self.events = ( ev for iev, root_ev in enumerate(self.tree) if (ev := self.run(Event(root_ev, iev, thr=self.thr))) )
 
 
   def run(self, ev: Event):
@@ -72,9 +72,9 @@ class Ntuple(object):
           val = flatten(val)
           for ival in val:
             h.Fill( ival )
-        else:
+        elif val:
           h.Fill(val)
-      
+
       # Efficiencies
       elif hType == "eff":
         func = histoinfo["func"]

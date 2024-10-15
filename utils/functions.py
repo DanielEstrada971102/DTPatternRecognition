@@ -64,12 +64,12 @@ def get_best_matches( reader, station = 1, _4showereds=None):
     bestMatches = filter( lambda key: key is not None, bestMatches )
     return bestMatches
 
-def get_shower_by_station(reader, station=1):
-    showers = reader.showers
+def get_shower_by_station(reader, station=1, pyshower=False):
+    showers = reader.showers if not pyshower else reader.pyshowers
     return [shower for shower in showers if shower.st == station]
 
-def get_shower_locs(reader, station=1): 
-    showers = reader.showers
+def get_shower_locs(reader, station=1, pyshower=False): 
+    showers = reader.showers if not pyshower else reader.pyshowers
     shower_locations = [] 
     
     for shower in showers:
