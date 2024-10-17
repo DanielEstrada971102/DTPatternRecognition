@@ -3,6 +3,10 @@ import ROOT as r
 import utils.functions as fcns
 from utils.functions import color_msg
 dummyVal = -9999
+# Make Iterators for when we want to iterate over different subdetectors
+wheels   = range(-2, 3)
+sectors  = range(1, 15)
+stations = range(1, 5)
 # -- These are computed using the baseline selection
 histos = {}
 
@@ -125,13 +129,6 @@ histos.update({
     "histo" : r.TH1D("nGenMuons", r';Number of generator muons; Events', 20, -3 , 3),
     "func" : lambda reader: len(reader.genmuons),
   },
-  
-  # --- Leading muon properties
-  "nTrueShowers" : {
-    "type" : "distribution",
-    "histo" : r.TH1D("nTrueShowers", r'; nTrueShowers; Events', 2, 0 , 2),
-    "func" : lambda reader: [gm.did_shower() for gm in reader.genmuons],
-  },
 })
 
 # --- Showering muon properties
@@ -178,309 +175,279 @@ histos.update({
     },
 })
 
-  # ---- shower ---- (destrada (.)_(.)...)
-histos.update({ # Showers built on cmssw emulator
-  "emuShowers_n":{
+# --------------------- destrada (.)_(.) ----------------------
+# number of showers
+histos.update({
+  "nTrueShowers" : {
+    "type" : "distribution",
+    "histo" : r.TH1D("nTrueShowers", r'; n;', 2, 0 , 2),
+    "func" : lambda reader: [gm.did_shower() for gm in reader.genmuons],
+  },
+  "nEmuShowers" : {
+    "type" : "distribution",
+    "histo" : r.TH1D("nEmuShowers", r'; n;', 2, 0 , 2),
+    "func" : lambda reader: [1 for shower in reader.showers],
+  },
+  "nShowers2Comp" : {
+    "type" : "distribution",
+    "histo" : r.TH1D("nShowers2Comp", r'; n;', 2, 0 , 2),
+    "func" : lambda reader: [1 for shower in reader.showers2comp],
+  },
+  "nPyShowers" : {
+    "type" : "distribution",
+    "histo" : r.TH1D("nPyShowers", r'; n;', 2, 0 , 2),
+    "func" : lambda reader: [1 for shower in reader.pyshowers],
+  },
+})
+
+vars = {
+  "nDigis": (50, 0, 500),
+  "avg_pos": (50, 0, 400),
+  "avg_time": (50, 0, 4000),
+  "wh": (5, -2.5, 2.5),
+  "st": (4, 0, 4),
+  "sc": (14, 0, 14),
+}
+# emuShowers => showers built on cmssw emulator
+histos.update({
+  "emuShowers_n4ev":{
     "type": "distribution",
-    "histo" : r.TH1D("emuShowers_n", r'; emuShowers_n; Events', 50, 0 , 50),
+    "histo" : r.TH1D("emuShowers_n4ev", r'; emuShowers_n; Events', 50, 0 , 50),
     "func" : lambda reader: size if (size := len(reader.showers)) > 0 else None,
   },
-  "emuShowers_nDigis":{
-    "type": "distribution",
-    "histo" : r.TH1D("emuShowers_nDigis", r'; emuShowers_nDigis; Events', 50, 0 , 500),
-    "func" : lambda reader: [shower.nDigis for shower in reader.showers],
-  },
-  "emuShowers_avg_pos":{
-    "type": "distribution",
-    "histo" : r.TH1D("emuShowers_avg_pos", r'; emuShowers_avg_pos; Events', 50, 0 , 400),
-    "func" : lambda reader: [shower.avg_pos for shower in reader.showers],
-  },
-  "emuShowers_avg_time":{
-    "type": "distribution",
-    "histo" : r.TH1D("emuShowers_avg_time", r'; emuShowers_avg_time; Events', 50, 0 , 4000),
-    "func" : lambda reader: [shower.avg_time for shower in reader.showers],
-  },
-  "emuShowers_wh":{
-    "type": "distribution",
-    "histo" : r.TH1D("emuShowers_wh", r'; emuShowers_wh; Events', 5, -2.5 , 2.5),
-    "func" : lambda reader: [shower.wh for shower in reader.showers],
-  },
-  "emuShowers_st":{
-    "type": "distribution",
-    "histo" : r.TH1D("emuShowers_st", r'; emuShowers_st; Events', 4, 0 , 4),
-    "func" : lambda reader: [shower.st for shower in reader.showers],
-  },
-  "emuShowers_sec":{
-    "type": "distribution",
-    "histo" : r.TH1D("emuShowers_sec", r'; emuShowers_sec; Events', 12, 0 , 12),
-    "func" : lambda reader: [shower.sc for shower in reader.showers],
-  },
 })
+for var, range_ in vars.items():
+  histos.update({
+    "emuShowers_" + var:{
+      "type": "distribution",
+      "histo" : r.TH1D("emuShowers_" + var, r'; emuShowers_{0}; Events'.format(var), *range_),
+      "func" : lambda reader, var=var: [getattr(shower, var) for shower in reader.showers],
+    },
+  })
 
-histos.update({ # Showers re-built in python to compare
-  "showers2comp_n":{
+# showers2comp => showers re-built in python to compare
+histos.update({ 
+  "showers2comp_n4ev":{
     "type": "distribution",
-    "histo" : r.TH1D("showers2comp_n", r'; showers2comp_n; Events', 50, 0 , 50),
+    "histo" : r.TH1D("showers2comp_n4ev", r'; showers2comp_n; Events', 50, 0 , 50),
     "func" : lambda reader: size if (size := len(reader.showers2comp)) > 0 else None,
   },
-  "showers2comp_nDigis":{
-    "type": "distribution",
-    "histo" : r.TH1D("showers2comp_nDigis", r'; showers2comp_nDigis; Events', 50, 0 , 500),
-    "func" : lambda reader: [shower.nDigis for shower in reader.showers2comp],
-  },
-  "showers2comp_avg_pos":{
-    "type": "distribution",
-    "histo" : r.TH1D("showers2comp_avg_pos", r'; showers2comp_avg_pos; Events', 50, 0 , 400),
-    "func" : lambda reader: [shower.avg_pos for shower in reader.showers2comp],
-  },
-  "showers2comp_avg_time":{
-    "type": "distribution",
-    "histo" : r.TH1D("showers2comp_avg_time", r'; showers2comp_avg_time; Events', 50, 0 , 4000),
-    "func" : lambda reader: [shower.avg_time for shower in reader.showers2comp],
-  },
-  "showers2comp_wh":{
-    "type": "distribution",
-    "histo" : r.TH1D("showers2comp_wh", r'; showers2comp_wh; Events', 5, -2.5 , 2.5),
-    "func" : lambda reader: [shower.wh for shower in reader.showers2comp],
-  },
-  "showers2comp_st":{
-    "type": "distribution",
-    "histo" : r.TH1D("showers2comp_st", r'; showers2comp_st; Events', 4, 0 , 4),
-    "func" : lambda reader: [shower.st for shower in reader.showers2comp],
-  },
-  "showers2comp_sec":{
-    "type": "distribution",
-    "histo" : r.TH1D("showers2comp_sec", r'; showers2comp_sec; Events', 12, 0 , 12),
-    "func" : lambda reader: [shower.sc for shower in reader.showers2comp],
-  },
 })
+for var, range_ in vars.items():
+  histos.update({
+    "showers2comp_" + var:{
+      "type": "distribution",
+      "histo" : r.TH1D("showers2comp_" + var, r'; showers2comp_{0}; Events'.format(var), *range_),
+      "func" : lambda reader, var=var: [getattr(shower, var) for shower in reader.showers2comp],
+    },
+  })
 
-histos.update({ # Showers built in python by SL
-  "pyShower_n":{
+# pyShowers => built in python checking by SL
+histos.update({
+  "pyShower_n4ev":{
     "type": "distribution",
-    "histo" : r.TH1D("pyShower_n", r'; pyShower_n; Events', 50, 0 , 50),
+    "histo" : r.TH1D("pyShower_n4ev", r'; pyShower_n; Events', 50, 0 , 50),
     "func" : lambda reader: size if (size := len(reader.pyshowers)) > 0 else None,
   },
-  "pyShower_nDigis":{
-    "type": "distribution",
-    "histo" : r.TH1D("pyShower_nDigis", r'; pyShower_nDigis; Events', 50, 0 , 500),
-    "func" : lambda reader: [shower.nDigis for shower in reader.pyshowers],
-  },
-  "pyShower_avg_pos":{
-    "type": "distribution",
-    "histo" : r.TH1D("pyShower_avg_pos", r'; pyShower_avg_pos; Events', 50, 0 , 400),
-    "func" : lambda reader: [shower.avg_pos for shower in reader.pyshowers],
-  },
-  "pyShower_avg_time":{
-    "type": "distribution",
-    "histo" : r.TH1D("pyShower_avg_time", r'; pyShower_avg_time; Events', 50, 0 , 4000),
-    "func" : lambda reader: [shower.avg_time for shower in reader.pyshowers],
-  },
-  "pyShower_wh":{
-    "type": "distribution",
-    "histo" : r.TH1D("pyShower_wh", r'; pyShower_wh; Events', 5, -2.5 , 2.5),
-    "func" : lambda reader: [shower.wh for shower in reader.pyshowers],
-  },
-  "pyShower_st":{
-    "type": "distribution",
-    "histo" : r.TH1D("pyShower_st", r'; pyShower_st; Events', 4, 0 , 4),
-    "func" : lambda reader: [shower.st for shower in reader.pyshowers],
-  },
-  "pyShower_sec":{
-    "type": "distribution",
-    "histo" : r.TH1D("pyShower_sec", r'; pyShower_sec; Events', 12, 0 , 12),
-    "func" : lambda reader: [shower.sc for shower in reader.pyshowers],
-  },
 })
+for var, range_ in vars.items():
+  histos.update({
+    "pyShower_" + var:{
+      "type": "distribution",
+      "histo" : r.TH1D("pyShower_" + var, r'; pyShower_{0}; Events'.format(var), *range_),
+      "func" : lambda reader, var=var: [getattr(shower, var) for shower in reader.pyshowers],
+    },
+  })
 
+# ------------- using emuShowers ---------------
+# true positive ratio --> segments which loc matches with any shower / segments (relative to showered genmuons)
+for st in stations:
+  histos.update({ 
+    "seg_m_emushower_tprgm_MB" + str(st):{ 
+        "type": "eff",
+        "histoDen" : r.TH1D(f"Seg_m_emushower_tprgm_MB{st}_total", r';Wheel; Events', 5, -2.5 , 2.5),
+        "histoNum" : r.TH1D(f"Seg_m_emushower_tprgm_MB{st}_num", r';Wheel; Events', 5, -2.5 , 2.5),
+        "func"     : lambda reader, st=st: [seg.wh for seg in fcns.get_best_matches( reader, station = st, _4showereds = True )],
+        "numdef"   : lambda reader, st=st: [
+            ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = st))
+            for seg in fcns.get_best_matches( reader, station = st, _4showereds = True )
+          ],
+    },
+  })
 
-histos.update({ 
-  "seg_m_shower_tprgm_MB1":{ # true positive ratio --> segments which loc matches with any shower / segments (relative to showered genmuons)
+# fake positive ratio --> segments which loc matches with any shower / segments (relative to non showered genmuons)
+for st in stations:
+  histos.update({ 
+  "seg_m_emushower_fprgm_MB" + str(st):{
       "type": "eff",
-      "histoDen" : r.TH1D(f"Seg_m_shower_tprgm_MB1_total", r';Wheel; Events', 5, -2.5 , 2.5),
-      "histoNum" : r.TH1D(f"Seg_m_shower_tprgm_MB1_num", r';Wheel; Events', 5, -2.5 , 2.5),
-      "func"     : lambda reader: [seg.wh for seg in fcns.get_best_matches( reader, station = 1, _4showereds = True )],
-      "numdef"   : lambda reader: [
-          ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = 1))
-          for seg in fcns.get_best_matches( reader, station = 1, _4showereds = True )
+      "histoDen" : r.TH1D(f"Seg_m_emushower_fprgm_MB{st}_total", r';Wheel; Events', 5, -2.5 , 2.5),
+      "histoNum" : r.TH1D(f"Seg_m_emushower_fprgm_MB{st}_num", r';Wheel; Events', 5, -2.5 , 2.5),
+      "func"     : lambda reader, st=st: [seg.wh for seg in fcns.get_best_matches( reader, station = st, _4showereds = False)],
+      "numdef"   : lambda reader, st=st: [
+          ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = st))
+          for seg in fcns.get_best_matches( reader, station = st, _4showereds = False)
         ],
-  },
-  "seg_m_shower_tprgm_MB2":{
-      "type": "eff",
-      "histoDen" : r.TH1D(f"Seg_m_shower_tprgm_MB2_total", r';Wheel; Events', 5, -2.5 , 2.5),
-      "histoNum" : r.TH1D(f"Seg_m_shower_tprgm_MB2_num", r';Wheel; Events', 5, -2.5 , 2.5),
-      "func"     : lambda reader: [seg.wh for seg in fcns.get_best_matches( reader, station = 2, _4showereds = True )],
-      "numdef"   : lambda reader: [
-          ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = 2))
-          for seg in fcns.get_best_matches( reader, station = 2, _4showereds = True )
-        ],
-  },
-  "seg_m_shower_tprgm_MB3":{
-      "type": "eff",
-      "histoDen" : r.TH1D(f"Seg_m_shower_tprgm_MB3_total", r';Wheel; Events', 5, -2.5 , 2.5),
-      "histoNum" : r.TH1D(f"Seg_m_shower_tprgm_MB3_num", r';Wheel; Events', 5, -2.5 , 2.5),
-      "func"     : lambda reader: [seg.wh for seg in fcns.get_best_matches( reader, station = 3, _4showereds = True )],
-      "numdef"   : lambda reader: [
-          ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = 3))
-          for seg in fcns.get_best_matches( reader, station = 3, _4showereds = True )
-        ],
-  },
-  "seg_m_shower_tprgm_MB4":{
-      "type": "eff",
-      "histoDen" : r.TH1D(f"Seg_m_shower_tprgm_MB4_total", r';Wheel; Events', 5, -2.5 , 2.5),
-      "histoNum" : r.TH1D(f"Seg_m_shower_tprgm_MB4_num", r';Wheel; Events', 5, -2.5 , 2.5),
-      "func"     : lambda reader: [seg.wh for seg in fcns.get_best_matches( reader, station = 4, _4showereds = True )],
-      "numdef"   : lambda reader: [
-          ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = 4))
-          for seg in fcns.get_best_matches( reader, station = 4, _4showereds = True )
-        ],
-  },
+    },
+  })
 
-  "seg_m_shower_fprgm_MB1":{ # fake positive ratio --> segments which loc matches with any shower / segments (relative to non showered genmuons)
-      "type": "eff",
-      "histoDen" : r.TH1D(f"Seg_m_shower_fprgm_MB1_total", r';Wheel; Events', 5, -2.5 , 2.5),
-      "histoNum" : r.TH1D(f"Seg_m_shower_fprgm_MB1_num", r';Wheel; Events', 5, -2.5 , 2.5),
-      "func"     : lambda reader: [seg.wh for seg in fcns.get_best_matches( reader, station = 1, _4showereds = False)],
-      "numdef"   : lambda reader: [
-          ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = 1))
-          for seg in fcns.get_best_matches( reader, station = 1, _4showereds = False)
-        ],
-  },
-  "seg_m_shower_fprgm_MB2":{
-      "type": "eff",
-      "histoDen" : r.TH1D(f"Seg_m_shower_fprgm_MB2_total", r';Wheel; Events', 5, -2.5 , 2.5),
-      "histoNum" : r.TH1D(f"Seg_m_shower_fprgm_MB2_num", r';Wheel; Events', 5, -2.5 , 2.5),
-      "func"     : lambda reader: [seg.wh for seg in fcns.get_best_matches( reader, station = 2, _4showereds = False )],
-      "numdef"   : lambda reader: [
-          ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = 2))
-          for seg in fcns.get_best_matches( reader, station = 2, _4showereds = False)
-        ],
-  },
-  "seg_m_shower_fprgm_MB3":{
-      "type": "eff",
-      "histoDen" : r.TH1D(f"Seg_m_shower_fprgm_MB3_total", r';Wheel; Events', 5, -2.5 , 2.5),
-      "histoNum" : r.TH1D(f"Seg_m_shower_fprgm_MB3_num", r';Wheel; Events', 5, -2.5 , 2.5),
-      "func"     : lambda reader: [seg.wh for seg in fcns.get_best_matches( reader, station = 3, _4showereds = False )],
-      "numdef"   : lambda reader: [
-          ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = 3))
-          for seg in fcns.get_best_matches( reader, station = 3, _4showereds = False )
-        ],
-  },
-  "seg_m_shower_fprgm_MB4":{
-      "type": "eff",
-      "histoDen" : r.TH1D(f"Seg_m_shower_fprgm_MB4_total", r';Wheel; Events', 5, -2.5 , 2.5),
-      "histoNum" : r.TH1D(f"Seg_m_shower_fprgm_MB4_num", r';Wheel; Events', 5, -2.5 , 2.5),
-      "func"     : lambda reader: [seg.wh for seg in fcns.get_best_matches( reader, station = 4, _4showereds = False)],
-      "numdef"   : lambda reader: [
-          ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = 4))
-          for seg in fcns.get_best_matches( reader, station = 4, _4showereds = False )
-        ],
-  },
-})
+  # ------------- using Showers2comp -------------------
+# true positive ratio --> segments which loc matches with any shower / segments (relative to showered genmuons)
+for st in stations:
+  histos.update({ 
+    "seg_m_shower2comp_tprgm_MB" + str(st):{ 
+        "type": "eff",
+        "histoDen" : r.TH1D(f"Seg_m_shower2comp_tprgm_MB{st}_total", r';Wheel; Events', 5, -2.5 , 2.5),
+        "histoNum" : r.TH1D(f"Seg_m_shower2comp_tprgm_MB{st}_num", r';Wheel; Events', 5, -2.5 , 2.5),
+        "func"     : lambda reader, st=st: [seg.wh for seg in fcns.get_best_matches( reader, station = st, _4showereds = True )],
+        "numdef"   : lambda reader, st=st: [
+            ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = st, shower2comp = True))
+            for seg in fcns.get_best_matches( reader, station = st, _4showereds = True )
+          ],
+    },
+  })
 
-histos.update({
-  "digi_w_MB1":{
-    "type": "distribution - candle",
-    "histo" : r.TH2I(f"digi_w_MB1", r';Wheel; Events', 5, -2.5, 2.5, 100, 0, 100),
-    "func" : lambda reader: [(digi.wh, digi.w) for digi in reader.digis if digi.st == 1],
-  },
-  "digi_w_MB2":{
-    "type": "distribution - candle",
-    "histo" : r.TH2I(f"digi_w_MB2", r';Wheel; Events', 5, -2.5, 2.5, 100, 0, 100),
-    "func" : lambda reader: [(digi.wh, digi.w) for digi in reader.digis if digi.st == 2],
-  },
-  "digi_w_MB3":{
-    "type": "distribution - candle",
-    "histo" : r.TH2I(f"digi_w_MB3", r';Wheel; Events', 5, -2.5, 2.5, 100, 0, 100),
-    "func" : lambda reader: [(digi.wh, digi.w) for digi in reader.digis if digi.st == 3],
-  },
-  "digi_w_MB4":{
-    "type": "distribution - candle",
-    "histo" : r.TH2I(f"digi_w_MB4", r';Wheel; Events', 5, -2.5, 2.5, 100, 0, 100),
-    "func" : lambda reader: [(digi.wh, digi.w) for digi in reader.digis if digi.st == 4],
-  },
-})
+# fake positive ratio --> segments which loc matches with any shower / segments (relative to non showered genmuons)
+for st in stations:
+  histos.update({ 
+  "seg_m_shower2comp_fprgm_MB" + str(st):{
+      "type": "eff",
+      "histoDen" : r.TH1D(f"Seg_m_shower2comp_fprgm_MB{st}_total", r';Wheel; Events', 5, -2.5 , 2.5),
+      "histoNum" : r.TH1D(f"Seg_m_shower2comp_fprgm_MB{st}_num", r';Wheel; Events', 5, -2.5 , 2.5),
+      "func"     : lambda reader, st=st: [seg.wh for seg in fcns.get_best_matches( reader, station = st, _4showereds = False)],
+      "numdef"   : lambda reader, st=st: [
+          ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = st, shower2comp = True))
+          for seg in fcns.get_best_matches( reader, station = st, _4showereds = False)
+        ],
+    },
+  })
 
-histos.update({ 
-  "seg_m_pyshower_tprgm_MB1":{ # true positive ratio --> segments which loc matches with any shower / segments (relative to showered genmuons)
-      "type": "eff",
-      "histoDen" : r.TH1D(f"seg_m_pyshower_tprgm_MB1_total", r';Wheel; Events', 5, -2.5 , 2.5),
-      "histoNum" : r.TH1D(f"seg_m_pyshower_tprgm_MB1_num", r';Wheel; Events', 5, -2.5 , 2.5),
-      "func"     : lambda reader: [seg.wh for seg in fcns.get_best_matches( reader, station = 1, _4showereds = True )],
-      "numdef"   : lambda reader: [
-          ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = 1, pyshower=True))
-          for seg in fcns.get_best_matches( reader, station = 1, _4showereds = True )
-        ],
-  },
-  "seg_m_pyshower_tprgm_MB2":{
-      "type": "eff",
-      "histoDen" : r.TH1D(f"seg_m_pyshower_tprgm_MB2_total", r';Wheel; Events', 5, -2.5 , 2.5),
-      "histoNum" : r.TH1D(f"seg_m_pyshower_tprgm_MB2_num", r';Wheel; Events', 5, -2.5 , 2.5),
-      "func"     : lambda reader: [seg.wh for seg in fcns.get_best_matches( reader, station = 2, _4showereds = True )],
-      "numdef"   : lambda reader: [
-          ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = 2, pyshower=True))
-          for seg in fcns.get_best_matches( reader, station = 2, _4showereds = True )
-        ],
-  },
-  "seg_m_pyshower_tprgm_MB3":{
-      "type": "eff",
-      "histoDen" : r.TH1D(f"seg_m_pyshower_tprgm_MB3_total", r';Wheel; Events', 5, -2.5 , 2.5),
-      "histoNum" : r.TH1D(f"seg_m_pyshower_tprgm_MB3_num", r';Wheel; Events', 5, -2.5 , 2.5),
-      "func"     : lambda reader: [seg.wh for seg in fcns.get_best_matches( reader, station = 3, _4showereds = True )],
-      "numdef"   : lambda reader: [
-          ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = 3, pyshower=True))
-          for seg in fcns.get_best_matches( reader, station = 3, _4showereds = True )
-        ],
-  },
-  "seg_m_pyshower_tprgm_MB4":{
-      "type": "eff",
-      "histoDen" : r.TH1D(f"seg_m_pyshower_tprgm_MB4_total", r';Wheel; Events', 5, -2.5 , 2.5),
-      "histoNum" : r.TH1D(f"seg_m_pyshower_tprgm_MB4_num", r';Wheel; Events', 5, -2.5 , 2.5),
-      "func"     : lambda reader: [seg.wh for seg in fcns.get_best_matches( reader, station = 4, _4showereds = True )],
-      "numdef"   : lambda reader: [
-          ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = 4, pyshower=True))
-          for seg in fcns.get_best_matches( reader, station = 4, _4showereds = True )
-        ],
-  },
+# ------------- using pyShowers -------------------
+# true positive ratio --> segments which loc matches with any shower / segments (relative to showered genmuons)
+for st in stations:
+  histos.update({ 
+    "seg_m_pyshower_tprgm_MB" + str(st):{ 
+        "type": "eff",
+        "histoDen" : r.TH1D(f"Seg_m_pyshower_tprgm_MB{st}_total", r';Wheel; Events', 5, -2.5 , 2.5),
+        "histoNum" : r.TH1D(f"Seg_m_pyshower_tprgm_MB{st}_num", r';Wheel; Events', 5, -2.5 , 2.5),
+        "func"     : lambda reader, st=st: [seg.wh for seg in fcns.get_best_matches( reader, station = st, _4showereds = True )],
+        "numdef"   : lambda reader, st=st: [
+            ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = st, pyshower = True))
+            for seg in fcns.get_best_matches( reader, station = st, _4showereds = True )
+          ],
+    },
+  })
 
-  "seg_m_pyshower_fprgm_MB1":{ # fake positive ratio --> segments which loc matches with any shower / segments (relative to non showered genmuons)
+# fake positive ratio --> segments which loc matches with any shower / segments (relative to non showered genmuons)
+for st in stations:
+  histos.update({ 
+  "seg_m_pyshower_fprgm_MB" + str(st):{
       "type": "eff",
-      "histoDen" : r.TH1D(f"seg_m_pyshower_fprgm_MB1_total", r';Wheel; Events', 5, -2.5 , 2.5),
-      "histoNum" : r.TH1D(f"seg_m_pyshower_fprgm_MB1_num", r';Wheel; Events', 5, -2.5 , 2.5),
-      "func"     : lambda reader: [seg.wh for seg in fcns.get_best_matches( reader, station = 1, _4showereds = False)],
-      "numdef"   : lambda reader: [
-          ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = 1, pyshower=True))
-          for seg in fcns.get_best_matches( reader, station = 1, _4showereds = False)
+      "histoDen" : r.TH1D(f"Seg_m_pyshower_fprgm_MB{st}_total", r';Wheel; Events', 5, -2.5 , 2.5),
+      "histoNum" : r.TH1D(f"Seg_m_pyshower_fprgm_MB{st}_num", r';Wheel; Events', 5, -2.5 , 2.5),
+      "func"     : lambda reader, st=st: [seg.wh for seg in fcns.get_best_matches( reader, station = st, _4showereds = False)],
+      "numdef"   : lambda reader, st=st: [
+          ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = st, pyshower = True))
+          for seg in fcns.get_best_matches( reader, station = st, _4showereds = False)
         ],
-  },
-  "seg_m_pyshower_fprgm_MB2":{
+    },
+  })
+
+# --------- for check how much differ from emulator shower those computed in python ----------------
+for st in stations:
+  histos.update({ 
+  "eff_shower2comp_eq2Emu_MB" + str(st):{
       "type": "eff",
-      "histoDen" : r.TH1D(f"seg_m_pyshower_fprgm_MB2_total", r';Wheel; Events', 5, -2.5 , 2.5),
-      "histoNum" : r.TH1D(f"seg_m_pyshower_fprgm_MB2_num", r';Wheel; Events', 5, -2.5 , 2.5),
-      "func"     : lambda reader: [seg.wh for seg in fcns.get_best_matches( reader, station = 2, _4showereds = False )],
-      "numdef"   : lambda reader: [
-          ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = 2, pyshower=True))
-          for seg in fcns.get_best_matches( reader, station = 2, _4showereds = False)
-        ],
-  },
-  "seg_m_pyshower_fprgm_MB3":{
+      "histoDen" : r.TH1D(f"eff_shower2comp_eq2Emu_MB{st}_total", r';Wheel; Events', 5, -2.5 , 2.5),
+      "histoNum" : r.TH1D(f"eff_shower2comp_eq2Emu_MB{st}_num", r';Wheel; Events', 5, -2.5 , 2.5),
+      "func"     : lambda reader, st=st: [shower.wh for shower in reader.showers2comp if shower.st == st],
+      "numdef"   : lambda reader, st=st: [shower.eq2Emulator for shower in reader.showers2comp  if shower.st == st],
+    },
+  })
+for st in stations:
+  histos.update({ 
+  "eff_pyshower_eq2Emu_MB" + str(st):{
       "type": "eff",
-      "histoDen" : r.TH1D(f"seg_m_pyshower_fprgm_MB3_total", r';Wheel; Events', 5, -2.5 , 2.5),
-      "histoNum" : r.TH1D(f"seg_m_pyshower_fprgm_MB3_num", r';Wheel; Events', 5, -2.5 , 2.5),
-      "func"     : lambda reader: [seg.wh for seg in fcns.get_best_matches( reader, station = 3, _4showereds = False )],
-      "numdef"   : lambda reader: [
-          ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = 3, pyshower=True))
-          for seg in fcns.get_best_matches( reader, station = 3, _4showereds = False )
-        ],
-  },
-  "seg_m_pyshower_fprgm_MB4":{
-      "type": "eff",
-      "histoDen" : r.TH1D(f"seg_m_pyshower_fprgm_MB4_total", r';Wheel; Events', 5, -2.5 , 2.5),
-      "histoNum" : r.TH1D(f"seg_m_pyshower_fprgm_MB4_num", r';Wheel; Events', 5, -2.5 , 2.5),
-      "func"     : lambda reader: [seg.wh for seg in fcns.get_best_matches( reader, station = 4, _4showereds = False)],
-      "numdef"   : lambda reader: [
-          ((seg.sc, seg.wh) in fcns.get_shower_locs( reader, station = 4, pyshower=True))
-          for seg in fcns.get_best_matches( reader, station = 4, _4showereds = False )
-        ],
-  },
-})
+      "histoDen" : r.TH1D(f"eff_pyshower_eq2Emu_MB{st}_total", r';Wheel; Events', 5, -2.5 , 2.5),
+      "histoNum" : r.TH1D(f"eff_pyshower_eq2Emu_MB{st}_num", r';Wheel; Events', 5, -2.5 , 2.5),
+      "func"     : lambda reader, st=st: [shower.wh for shower in reader.pyshowers if shower.st == st],
+      "numdef"   : lambda reader, st=st: [shower.eq2Emulator for shower in reader.pyshowers if shower.st == st],
+    },
+  })
+
+# --------- Digi wire info for events with GenMuons That do Not Showered -> (gmtns) ---------------
+# wire ocupancy 
+for st in stations:
+  histos.update({
+      "digi_w_gmtns_MB" + str(st):{
+      "type": "distribution2d",
+      "histo" : r.TH2I(f"digi_w_gmtns_MB" + str(st), r';Wheel; Events', 5, -2.5, 2.5, 200, 0, 200),
+      "func" : lambda reader, st = st: [
+        (digi.wh, digi.w) for digi in fcns.get_digis_by_station(reader, station=st)
+      ],
+    },
+  })
+
+# wire distribution relative to mean --> (w - avg_w)
+for st in stations:
+  histos.update({
+    "digi_wd_gmtns_MB" + str(st):{
+      "type": "distribution2d",
+      "histo" : r.TH2D(f"digi_wd_gmtns_MB" + str(st), r';Wheel; Events', 5, -2.5, 2.5, 200, -100, 100),
+      "func" : lambda reader, st=st: [
+        (digi.wh, digi.w - fcns.get_digis_mean(reader))
+        for digi in fcns.get_digis_by_station(reader, station=st)
+      ],
+    },
+  })  
+
+# length of wires --> l = (w.min - wire.max)
+for st in stations:
+  histos.update({
+    "digi_wl_gmtns_MB" + str(st):{
+      "type": "distribution2d",
+      "histo" : r.TH2D(f"digi_wl_gmtns_MB" + str(st), r';Wheel; Events', 5, -2.5, 2.5, 200, 0, 200),
+      "func" : lambda reader, st=st: [
+        (digi.wh, fcns.get_digis_length(reader)) for digi in fcns.get_digis_by_station(reader, station=st)
+      ],
+    },
+  })  
+
+# --------- Digi wire info for events with GenMmuons That Showered -> (gmts) ---------------
+
+# digis wire ocupancy 
+for st in stations:
+  histos.update({
+      "digi_w_gmts_MB" + str(st):{
+      "type": "distribution2d",
+      "histo" : r.TH2I(f"digi_w_gmts_MB" + str(st), r';Wheel; Events', 5, -2.5, 2.5, 200, 0, 200),
+      "func" : lambda reader, st = st: [
+        (digi.wh, digi.w) for digi in fcns.get_digis_by_station(reader, station=st, _4showereds=True)
+      ],
+    },
+  })
+
+# digis wire distribution relative to mean --> (w - avg_w)
+for st in stations:
+  histos.update({
+    "digi_wd_gmts_MB" + str(st):{
+      "type": "distribution2d",
+      "histo" : r.TH2D(f"digi_wd_gmts_MB" + str(st), r';Wheel; Events', 5, -2.5, 2.5, 200, -100, 100),
+      "func" : lambda reader, st=st: [
+        (digi.wh, digi.w - fcns.get_digis_mean(reader)) 
+        for digi in fcns.get_digis_by_station(reader, station=st, _4showereds=True)
+      ],
+    },
+  })  
+
+# digis length of wires --> l = (w.min - wire.max)
+for st in stations:
+  histos.update({
+    "digi_wl_gmts_MB" + str(st):{
+      "type": "distribution2d",
+      "histo" : r.TH2D(f"digi_wl_gmts_MB" + str(st), r';Wheel; Events', 5, -2.5, 2.5, 200, 0, 200),
+      "func" : lambda reader, st=st: [
+        (digi.wh, fcns.get_digis_length(reader))
+        for digi in fcns.get_digis_by_station(reader, station=st, _4showereds=True)
+      ],
+    },
+  })  

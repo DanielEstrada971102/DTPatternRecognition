@@ -82,7 +82,6 @@ class Event():
         self.showers2comp.append(shower)
 
       if len(df_g.loc[df_g["sl"]==1]) >= thr_sl or len(df_g.loc[df_g["sl"]==3]) >= thr_sl:
-        #color_msg("pyshower detected", color="red", indentLevel=2)
         shower = pyshower(wh, sc, st, df_g)
         if (wh, sc, st) in emulator_shower_locs: 
           shower.eq2Emulator = True

@@ -5,6 +5,7 @@ import ROOT as r
 r.gStyle.SetOptStat(0)
 import os
 from copy import deepcopy
+import numpy as np
 
 _noDelete = { "lines" : []}
 def color_msg(msg, color = "none", indentLevel = 0):
@@ -68,8 +69,8 @@ def get_shower_by_station(reader, station=1, pyshower=False):
     showers = reader.showers if not pyshower else reader.pyshowers
     return [shower for shower in showers if shower.st == station]
 
-def get_shower_locs(reader, station=1, pyshower=False): 
-    showers = reader.showers if not pyshower else reader.pyshowers
+def get_shower_locs(reader, station=1, pyshower=False, shower2comp=False): 
+    showers = reader.pyshowers if pyshower else (reader.showers2comp if shower2comp else reader.showers) 
     shower_locations = [] 
     
     for shower in showers:
@@ -77,7 +78,16 @@ def get_shower_locs(reader, station=1, pyshower=False):
             shower_locations.append((shower.sc, shower.wh))
     return shower_locations
 
+def get_digis_by_station(reader, station=1, _4showereds=False):
+    hasShowereds = any( genmuon.showered for genmuon in reader.genmuons )
+    return [digi for digi in reader.digis if (hasShowereds == _4showereds and digi.st == station)]
 
+def get_digis_mean(reader):
+    return np.mean([digi.w for digi in reader.digis])
+
+def get_digis_length(reader):
+    wires = [digi.w for digi in reader.digis]
+    return max(wires) - min(wires)
 # ----------------------------------------
 
 def deltaPhi(phi1, phi2):

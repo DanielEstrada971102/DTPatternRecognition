@@ -90,7 +90,7 @@ class Ntuple(object):
           if passes:
             num.Fill(val)  
 
-      elif hType == "distribution - candle":
+      elif hType == "distribution2d":
         h = histoinfo["histo"]
         func = histoinfo["func"]
         val = func(ev)

@@ -3,7 +3,7 @@ import math
 class shower2comp(object):
     def __init__(self, wh, sc, st, info_df):
         self.wh = wh
-        self.sc = sc
+        self.sc = sc - 1 # equal to shower.py
         self.st = st
         self.BX = None
         self.nDigis = len(info_df)

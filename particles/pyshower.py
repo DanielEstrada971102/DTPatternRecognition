@@ -4,7 +4,7 @@ class pyshower(object):
     "shower object building in python with digi information by SL"
     def __init__(self, wh, sc, st, info_df):
         self.wh = wh
-        self.sc = sc
+        self.sc = sc - 1 # equal to shower.py
         self.st = st
         self.BX = None
         self.nDigis = len(info_df)
