@@ -7,7 +7,7 @@ considering the geometrical features of the CMS DT system.
 python3 concentrator.py --inpath /lustrefs/hdd_pool_dir/L1T/Filter/ZprimeToMuMu_M-6000/0000/ --maxfiles 20
 ```
 
-This will command will run over 20 files in the `inpath` folder, and run the analyses defined under `concentrator.py`. By default it will produce the histograms defined in `utils/baseHistos.py` in a `.root` file. It is possible to change the output format by setting `--dumpmode` argument to `pickle` or `both`.  
+This will command will run over 20 files in the `inpath` folder, and run the analyses defined under `concentrator.py`.
 
 ## How it works
 The `utils/ntuple_reader.py` code will read DTNtuples and fetch all the different objects that can be fetched from there:
@@ -16,7 +16,7 @@ The `utils/ntuple_reader.py` code will read DTNtuples and fetch all the differen
  * trigger primitives
  * shower objects
 
-Then it will match genmuons to segments, and TPs to segments (following the Analytical Method procedure: https://github.com/jaimeleonh/DTNtuples/blob/unifiedPerf/test/DTNtupleTPGSimAnalyzer_Efficiency.C). All these objects are stored in a reader ([Event](https://github.com/DanielEstrada971102/DTPatternRecognition/blob/destrada/utils/event_builder.py#L14) instance) to use for creating histograms. The `pickle` output (available with `--dumpmode=pickle`) is useful for reconstructing an Ntuple instance and manipulating the different objects on an event-by-event basis. This avoids the need to regenerate them each time if you are testing and producing histograms. Once a `.pkl` file is generated, you can load it to produce plots in a manner similar to those created in `make_histograms.py`.
+Then it will match genmuons to segments, and TPs to segments (following the Analytical Method procedure: https://github.com/jaimeleonh/DTNtuples/blob/unifiedPerf/test/DTNtupleTPGSimAnalyzer_Efficiency.C). All these objects are stored in the reader to use for creating histograms.
 
 # How to define histograms
 Define your histos in `utils/baseHistos.py` following this format:
