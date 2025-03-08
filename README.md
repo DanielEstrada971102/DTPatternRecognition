@@ -1,12 +1,12 @@
 # Pattern Recognition for DTs
-This repository contains tools for implementing pattern recognition algorithms for the CMS DT system. The common tools that have been implemeted can be found in the `src/analysis` directory and are accessible through the `dtpr-analysis` command, as described in the **How to Run section**. These analyses are based on the tools and classes implemented in the [dtpr-package](https://github.com/DanielEstrada971102/dtpr-package.git) (included here as a submodule), and the `src` folder.
+This repository contains tools for implementing pattern recognition algorithms for the CMS DT system. The common tools that have been implemeted can be found in the `dtpr/analysis` directory and are accessible through the `dtpr` command, as described in the **How to Run section**. These analyses are based on the tools and classes implemented in the [dtpr-package](https://github.com/DanielEstrada971102/dtpr-package.git) (included here as a submodule), and the `src` folder.
 
 ## Installation
 
 First, download the source files or clone the repository. 
 
 ```shell
-git clone https://github.com/DanielEstrada971102/DTPatternRecognition.git --recursive -b destrada-dtpr
+git clone https://github.com/DanielEstrada971102/DTPatternRecognition.git
 ```
 
 Next, install the dependencies with pip. It is recommended to use a Python virtual environment
@@ -17,25 +17,15 @@ source [NAME-OF-VENV]/bin/activate
 pip install .
 ```
 
-> [!TIP]
-> If you encounter issues related to the `dtpr` package, try reinstalling it by running:
-> ```shell
-> pip uninstall dtpr
-> cd dtpr-package
-> pip install .
-> ```
-
 ## How to Run
 
 To run an analysis, use the following command:
 
 ```
-dtpr-analysis [ANALYSIS-TO-DO] [--OPTIONAL-ARGS]
+dtpr [ANALYSIS-TO-DO] [--OPTIONAL-ARGS]
 ```
 
-The `dtpr-analysis` command is a CLI tool that runs `src/cli.py`. Possible analyses are implemented there, and future analyses could be added there for easy execution.
-
-<!-- The `NTUPLE-TYPE` argument specifies the type of data format to read. Possible data formats should be included in `src/ntuples`. Currently, only `dtntuple` is available. An example of this type of file is `/src/ntuples/DTDPGNtuple_12_4_2_Phase2Concentrator_Simulation_99.root`. -->
+The `dtpr` command is a CLI tool that runs `dtpr/cli.py`. Possible analyses are implemented there, and future analyses could be added there for easy execution.
 
 The `ANALYSIS-TO-DO` argument indicates which of the available analyses to execute. Currently, some of options are the followings: `fill-histos`, `plot-dts`, `plot-dt`, `inspect-event`, and `event-visualizer`. See the Analyses section for further details.
 
@@ -58,15 +48,15 @@ for i in range(len(tree.gen_pdgID)):
   if tree.gen_pt[i] > 5:
     print(tree.gen_eta[i])
 ```
-Reading the input files and mapping the information into the respective classes are handled by a central class inherating from `dtpr.base.NTuple`. For instance, `src/ntuples/dtntuple.py` defines a child class called `DtNtuple`. Multiple implementations of `NTuple` children are possible to accommodate the needs of different input data formats and filtering requirements. These implementations should override the `event_preprocessor` method to control the filtering and creation of events and their associated "particle" objects based on the input file information. For detailed information on this building process, refer to the [dtpr-package documentation](https://danielestrada971102.github.io/dtpr-package/). Once the `Ntuple` child class is instantiated, you can iterate, index, and slice through events using the `.events` attribute.
+Reading the input files and mapping the information into the respective classes are handled by a central class inherating from `dtpr.base.NTuple`. For instance, `dtpr/ntuples/dtntuple.py` defines a child class called `DtNtuple`. Multiple implementations of `NTuple` children are possible to accommodate the needs of different input data formats and filtering requirements. These implementations should override the `event_preprocessor` method to control the filtering and creation of events and their associated "particle" objects based on the input file information. For detailed information on this building process, refer to the [dtpr-package documentation](https://danielestrada971102.github.io/dtpr-package/). Once the `Ntuple` child class is instantiated, you can iterate, index, and slice through events using the `.events` attribute.
 
 Objects obtained from data formats will be accessible directly as event attributes, such as Genmuons (`event[i].genmuons`), Segments (`event[i].segments`), Trigger primitives (`event[i].tps`), and Shower objects (`event[i].fwshowers`). The construction of specific objects can be controlled by specifying them in a YAML event config file. Again, see the [dtpr-package documentation](https://danielestrada971102.github.io/dtpr-package/) for more details.
 
 Additionally, this framework includes generic tools for common tasks such as filling ROOT histograms and visualizing input data related to CMS DT detectors. For example, you can draw DT hits in a chamber with geometrically accurate plots. Refer to the **Analyses** section for detailed information. 
 
-To make these implementations as generic as possible, important parameters such as the type of NTuple to process data, the type of particles to build, the histograms to fill, and the matplotlib style parameters to use should be specified via a YAML run config file. This file should be placed in the `--outpath` directory with the name `run_config.yaml`. If not provided, the default configuration in `src/utils/yamls/run_config.yaml` will be used.
+To make these implementations as generic as possible, important parameters such as the type of NTuple to process data, the type of particles to build, the histograms to fill, and the matplotlib style parameters to use should be specified via a YAML run config file. This file should be placed in the `--outpath` directory with the name `run_config.yaml`. If not provided, the default configuration in `dtpr/utils/yamls/run_config.yaml` will be used.
 
-Particulary, for DTNtuples (`src/ntuples/dtntuple.py:DtNtuple`) analyses, filter, Segments-TPs matching (following the [Analytical Method procedure](https://github.com/jaimeleonh/DTNtuples/blob/unifiedPerf/test/DTNtupleTPGSimAnalyzer_Efficiency.C)), and [**emulation of muon shower build processes**](src/utils/shower_functions.py) are performed.
+Particulary, for DTNtuples (`dtpr/ntuples/dtntuple.py:DtNtuple`) analyses, filter, Segments-TPs matching (following the [Analytical Method procedure](https://github.com/jaimeleonh/DTNtuples/blob/unifiedPerf/test/DTNtupleTPGSimAnalyzer_Efficiency.C)), and [**emulation of muon shower build processes**](dtpr/utils/shower_functions.py) are performed.
 
 ## Analyses
 
@@ -103,7 +93,7 @@ Where:
     "func": lambda reader: __function_for_filling_histograms__,
   },
 ```
-The `reader` argument in functions represents an `event` entry, which should be an instance of `dtpr.base.Event` created by the implemented `NTuple` child. A set of predefined histograms is available in `src/utils/histograms`.
+The `reader` argument in functions represents an `event` entry, which should be an instance of `dtpr.base.Event` created by the implemented `NTuple` child. A set of predefined histograms is available in `dtpr/utils/histograms`.
 
 Once your histograms are defined, include them in the `run_config.yaml` file by specifying:
 
@@ -113,7 +103,7 @@ Once your histograms are defined, include them in the `run_config.yaml` file by 
 .
 histo_sources:
   # Define the source modules of the histograms
-  - src.utils.histograms.baseHistos
+  - dtpr.utils.histograms.baseHistos
   # Add additional source modules as needed
   .
   .
@@ -133,7 +123,7 @@ histo_names:
 Then, run the following command to fill the histograms:
 
 ```shell
-dtpr-analysis fill-histos -i [INPATH] -o [OUTPATH] ...
+dtpr fill-histos -i [INPATH] -o [OUTPATH] ...
 ```
 ### `inspect-event`
 
@@ -141,7 +131,7 @@ dtpr-analysis fill-histos -i [INPATH] -o [OUTPATH] ...
 
 ### `plot-dt` and `plot-dts`
 
-These tools allow for easy visualization of DT chamber plots with detailed information at the drift cell level using the Patches module from `dtpr.patches.dt_patch`. Let's illustrate this with a specific example.
+These tools allow for easy visualization of DT chamber plots with detailed information at the drift cell level using the Patches module from `mpldts.patches.dt_patch`. Let's illustrate this with a specific example.
 
 Suppose you have access to DIGI information from your input data. By specifying its reconstruction in the `run_config.yaml`, you can access this information through statements like `event[i].digis[j].property`, where `property` could be `time`, `BX`, etc. To visualize the digis patterns in a DT chamber, you can configure the following in your `run_config.yaml`:
 
@@ -170,7 +160,7 @@ dt_plots_configs:
 Then, run the following command:
 
 ```bash
-dtpr-analysis plot-dt -i [INPATH] -o [OUTPATH] -evn 0 --wheel -2 --sector 1 --station 1
+dtpr plot-dt -i [INPATH] -o [OUTPATH] -evn 0 --wheel -2 --sector 1 --station 1
 ```
 
 This will produce a plot similar to the one below:
@@ -182,7 +172,7 @@ This will produce a plot similar to the one below:
 Alternatively, you can run:
 
 ```bash
-dtpr-analysis plot-dts -i [INPATH] -o [OUTPATH] -evn 0
+dtpr plot-dts -i [INPATH] -o [OUTPATH] -evn 0
 ```
 
 This will generate a plot like the one below:
@@ -204,6 +194,6 @@ For debugging or performing multiple visual inspections across several events or
 To open the GUI, run the following command:
 
 ```bash
-dtpr-analysis plot-dts -i [INPATH] -o [OUTPATH]
+dtpr plot-dts -i [INPATH] -o [OUTPATH]
 # The OUTPATH argument is only required if a custom run_config.yaml will be used.
 ```
